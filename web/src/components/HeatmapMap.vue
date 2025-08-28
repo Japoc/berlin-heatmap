@@ -14,6 +14,7 @@ const routeData = ref<any | null>(null)
 
 const minHeatValue = 0
 const maxHeatValue = ref(120)
+const apiURL = import.meta.env.API_URL
 
 const bbox: [[number, number], [number, number]] = [[52.33, 13.08], [52.67, 13.76]]
 
@@ -41,7 +42,7 @@ async function onKeyDown(e: KeyboardEvent) {
 
 function updateHeatmapUrl() {
   if (latitude.value && longitude.value) {
-    heatmapUrl.value = `http://localhost:8088/heatmap?lat=${latitude.value}&lon=${longitude.value}&format=png&max=${maxHeatValue.value}`
+    heatmapUrl.value = `${apiURL}/heatmap?lat=${latitude.value}&lon=${longitude.value}&format=png&max=${maxHeatValue.value}`
   }
 }
 
@@ -52,7 +53,7 @@ watch(maxHeatValue, () => {
 
 async function fetchRoute(latFrom: number, lonFrom: number, latTo: number, lonTo: number) {
   console.log(latFrom, lonFrom, latTo, lonTo)
-  const routeUrl = `http://localhost:8088/route?latFrom=${latFrom}&lonFrom=${lonFrom}&latTo=${latTo}&lonTo=${lonTo}`
+  const routeUrl = `${apiURL}/route?latFrom=${latFrom}&lonFrom=${lonFrom}&latTo=${latTo}&lonTo=${lonTo}`
   try {
     const res = await fetch(routeUrl)
     if (!res.ok) throw new Error(`Route fetch failed: ${res.status}`)

@@ -14,7 +14,7 @@ const routeData = ref<any | null>(null)
 
 const minHeatValue = 0
 const maxHeatValue = ref(120)
-const apiURL = import.meta.env.API_URL
+const apiURL = import.meta.env.VITE_API_URL
 
 const bbox: [[number, number], [number, number]] = [[52.33, 13.08], [52.67, 13.76]]
 
@@ -41,6 +41,7 @@ async function onKeyDown(e: KeyboardEvent) {
 }
 
 function updateHeatmapUrl() {
+  console.log(apiURL)
   if (latitude.value && longitude.value) {
     heatmapUrl.value = `${apiURL}/heatmap?lat=${latitude.value}&lon=${longitude.value}&format=png&max=${maxHeatValue.value}`
   }

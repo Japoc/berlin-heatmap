@@ -3,6 +3,6 @@ import HeatmapMap from './components/HeatmapMap.vue'
 </script>
 
 <template>
-  <HeatmapMap />
+  <HeatmapMap/>
 </template>
 

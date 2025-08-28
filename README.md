@@ -6,6 +6,10 @@
   <p align="center">
     A tool to visualize travel times around berlin using public transport
   </p>
+<p align="center">
+    A hosted version can be found here: <a href="https://japoc.github.io/berlin-heatmap/">https://japoc.github.io/berlin-heatmap/</a>
+  </p>
+
 
 <!-- TABLE OF CONTENTS -->
 <details>

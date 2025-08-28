@@ -23,6 +23,6 @@ func ParseFlags() *Config {
 		MatrixPath: *matrixPath,
 		GridFile:   *gridFile,
 		StopsFile:  *stopsFile,
-		K:          35,
+		K:          20,
 	}
 }

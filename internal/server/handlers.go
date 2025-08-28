@@ -11,14 +11,14 @@ import (
 )
 
 func StartHTTPServer(cfg *Config, store *HeatmapStore) {
-	http.HandleFunc("/heatmap", store.heatmapHandler)
+	http.HandleFunc("/heatmap", store.HeatmapHandler)
 	http.HandleFunc("/scale", store.heatmapScaleHandler)
 	http.Handle("/route", withCORS(http.HandlerFunc(store.routeHandler)))
 	log.Printf("listening on :%s", cfg.Port)
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
 }
 
-func (s *HeatmapStore) heatmapHandler(w http.ResponseWriter, r *http.Request) {
+func (s *HeatmapStore) HeatmapHandler(w http.ResponseWriter, r *http.Request) {
 	lat, lon := parseFloat(r.URL.Query().Get("lat")), parseFloat(r.URL.Query().Get("lon"))
 	maxTime := parseInt(r.URL.Query().Get("max"))
 	format := r.URL.Query().Get("format")

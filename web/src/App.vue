@@ -46,7 +46,7 @@ const showBus = ref(false)
           <Checkbox v-model="showMetro" label="Show Metro Routes" />
           <Checkbox v-model="showSBahn" label="Show S-Bahn Routes" />
           <Checkbox v-model="showTram" label="Show Tram Routes" />
-          <Checkbox v-model="showBus" label="Show Routes Routes" />
+          <Checkbox v-model="showBus" label="Show Bus Routes" />
         </div>
 
       </div>

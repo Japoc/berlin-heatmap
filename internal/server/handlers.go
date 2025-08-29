@@ -16,7 +16,7 @@ func StartHTTPServer(cfg *Config, store *HeatmapStore) {
 	http.HandleFunc("/heatmap", store.HeatmapHandler)
 	http.HandleFunc("/scale", store.heatmapScaleHandler)
 	http.Handle("/route", withCORS(http.HandlerFunc(store.routeHandler)))
-	http.HandleFunc("/routes", store.routesHandler)
+	http.Handle("/routes", withCORS(http.HandlerFunc(store.routesHandler)))
 	log.Printf("listening on :%s", cfg.Port)
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
 }
@@ -62,14 +62,6 @@ func isValidRouteType(routeType string) bool {
 }
 
 func (s *HeatmapStore) routesHandler(w http.ResponseWriter, r *http.Request) {
-	entries, err := os.ReadDir("./data/routes")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, e := range entries {
-		fmt.Println(e.Name())
-	}
 	routeType := r.URL.Query().Get("type")
 	if !isValidRouteType(routeType) {
 		http.Error(w, "received invalid route type", http.StatusBadRequest)
@@ -77,7 +69,6 @@ func (s *HeatmapStore) routesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	filePath := fmt.Sprintf("./data/routes/%v_routes.json", routeType)
-	log.Println(filePath)
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		http.Error(w, "Failed to read routes JSON", http.StatusInternalServerError)

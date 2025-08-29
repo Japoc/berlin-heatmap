@@ -101,52 +101,80 @@ onMounted(() => {
 })
 onUnmounted(() => {
   window.removeEventListener("keydown", onKeyDown)
+  //<iframe src="https://japoc.github.io/berlin-heatmap" width="500px" height="500px"></iframe>
 })
 </script>
 
 <template>
-  <LMap
-      style="height: 100vh; width: 100vh"
-      :zoom="11"
-      :center="[52.52, 13.40]"
-      @click="onMapClick"
-      @mousemove="onMapMouseMove"
-  >
-    <LMarker
-        :lat-lng="[Number(latitude), Number(longitude)]"
-    ></LMarker>
-    <LTileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
-    />
-    <LImageOverlay
-        v-if="heatmapUrl"
-        :url="heatmapUrl"
-        :bounds="bbox"
-        :opacity="0.5"
-    />
-    <div><a>test</a></div>
-    <LControlScale
-        :imperial = "false">
-    </LControlScale>
-  </LMap>
-  <SpinnerOverlay v-if="showSpinner" text="Waking up backend... please wait" />
-  <div class="heatmap-legend-below">
-    <div class="color-bar"></div>
-    <div class="labels">
-      <span>{{ minHeatValue }}</span>
-      <span>{{ Math.round((minHeatValue + maxHeatValue)/2) }}</span>
-      <span>{{ maxHeatValue }}</span>
+  <div class="page-container">
+    <!-- Map grows to fill available space -->
+    <div class="map-container">
+      <LMap
+          :zoom="11"
+          :center="[52.52, 13.40]"
+          @click="onMapClick"
+          @mousemove="onMapMouseMove"
+      >
+        <LMarker v-if="latitude && longitude" :lat-lng="[Number(latitude), Number(longitude)]" />
+        <LTileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; OpenStreetMap contributors"
+        />
+        <LImageOverlay
+            v-if="heatmapUrl"
+            :url="heatmapUrl"
+            :bounds="bbox"
+            :opacity="0.5"
+        />
+        <LControlScale :imperial="false" />
+      </LMap>
+      <SpinnerOverlay v-if="showSpinner" text="Waking up backend... please wait" />
+    </div>
+
+    <!-- Legend + Slider fixed below -->
+    <div class="bottom-panel">
+      <div class="heatmap-legend-below">
+        <div class="color-bar"></div>
+        <div class="labels">
+          <span>{{ minHeatValue }}</span>
+          <span>{{ Math.round((minHeatValue + maxHeatValue)/2) }}</span>
+          <span>{{ maxHeatValue }}</span>
+        </div>
+      </div>
+      <Slider v-model="maxHeatValue" :min="10" :max="180" :step="10" :label="'maximum heat'"/>
     </div>
   </div>
-  <Slider v-model="maxHeatValue" :min="10" :max="180" :step="10" :label="'maximum heat'"/>
 </template>
 
+
 <style scoped>
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* full viewport height */
+  width: 100vw;  /* full viewport width */
+  overflow: hidden;
+}
+
+.map-container {
+  flex: 1; /* take all available vertical space */
+  position: relative;
+}
+
+.map-container .leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.bottom-panel {
+  padding: 10px;
+  background: #5e5e5e;
+}
+
 .heatmap-legend-below {
   width: 100%;
   max-width: 600px;
-  margin: 10px auto;
+  margin: 0 auto 10px auto;
   text-align: center;
   font-size: 12px;
 }
@@ -166,30 +194,6 @@ onUnmounted(() => {
   justify-content: space-between;
   font-size: 11px;
   margin-top: 2px;
-}
-.spinner-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7); /* dark backdrop for contrast */
-  padding: 20px 30px;
-  border-radius: 10px;
-  text-align: center;
-  z-index: 9999;
-  color: #fff; /* make text visible */
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 4px solid rgba(255,255,255,0.3); /* faint border */
-  border-top: 4px solid #ffffff; /* bright white */
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 12px;
 }
 
 @keyframes spin {

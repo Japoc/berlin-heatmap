@@ -4,7 +4,7 @@ import {LMap, LTileLayer, LImageOverlay, LControlScale, LMarker} from '@vue-leaf
 import SpinnerOverlay from "./SpinnerOverlay.vue";
 import { decode } from '@googlemaps/polyline-codec';
 import metroRoutes from './metro_routes.json'
-import sBahnRoutes from './sBahn_routes.json'
+import sBahnRoutes from './sbahn_routes.json'
 import Polyline from "./Polyline.vue";
 
 // store last mouse position on map (for "m" key)

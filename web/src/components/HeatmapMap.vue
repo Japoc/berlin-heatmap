@@ -3,13 +3,14 @@ import {defineProps, onMounted, onUnmounted, ref, toRefs, watch} from 'vue'
 import {LMap, LTileLayer, LImageOverlay, LControlScale, LMarker} from '@vue-leaflet/vue-leaflet'
 import SpinnerOverlay from "./SpinnerOverlay.vue";
 import { decode } from '@googlemaps/polyline-codec';
-import metroRoutes from './metro_routes.json'
-import sBahnRoutes from './sbahn_routes.json'
 import Polyline from "./Polyline.vue";
 
 // store last mouse position on map (for "m" key)
 const lastMouseLat = ref<number | null>(null)
 const lastMouseLon = ref<number | null>(null)
+
+const metroRoutes = ref<any[]>([])
+const sBahnRoutes = ref<any[]>([])
 
 // store heatmap url
 const heatmapUrl = ref<string | null>(null)
@@ -44,6 +45,16 @@ function onMapMouseMove(event: any) {
   // only track mouse position
   lastMouseLat.value = event.latlng.lat
   lastMouseLon.value = event.latlng.lng
+}
+
+async function fetchRoutes(routeType: string) {
+    const url = `${apiURL}/routes?type=${routeType}`
+    const res = await fetch(url)
+    if (!res.ok) {
+      console.log(new Error(`Failed to fetch ${url}: ${res.status}`))
+      return []
+    }
+    return await res.json()
 }
 
 // handle key press ("m" = fetch route from clicked point to mouse position), for debugging purposes
@@ -104,8 +115,10 @@ async function fetchRoute(latFrom: number, lonFrom: number, latTo: number, lonTo
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener("keydown", onKeyDown)
+  metroRoutes.value = await fetchRoutes("metro")
+  sBahnRoutes.value = await fetchRoutes("sbahn")
 })
 onUnmounted(() => {
   window.removeEventListener("keydown", onKeyDown)

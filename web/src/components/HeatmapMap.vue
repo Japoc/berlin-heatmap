@@ -78,7 +78,6 @@ function updateHeatmapUrl() {
 
 }
 
-// 🔹 Watch slider value, refresh heatmap when it changes
 watch(maxHeatValue, () => {
   updateHeatmapUrl()
 })
@@ -107,7 +106,6 @@ onUnmounted(() => {
 
 <template>
   <div class="page-container">
-    <!-- Map grows to fill available space -->
     <div class="map-container">
       <LMap
           :zoom="11"
@@ -131,7 +129,6 @@ onUnmounted(() => {
       <SpinnerOverlay v-if="showSpinner" text="Waking up backend... please wait" />
     </div>
 
-    <!-- Legend + Slider fixed below -->
     <div class="bottom-panel">
       <div class="heatmap-legend-below">
         <div class="color-bar"></div>
@@ -151,13 +148,13 @@ onUnmounted(() => {
 .page-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* full viewport height */
-  width: 100vw;  /* full viewport width */
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
 .map-container {
-  flex: 1; /* take all available vertical space */
+  flex: 1;
   position: relative;
 }
 

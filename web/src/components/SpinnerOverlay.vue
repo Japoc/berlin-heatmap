@@ -17,7 +17,7 @@ defineProps<{
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7); /* dark backdrop */
+  background: rgba(0,0,0,0.7);
   padding: 20px 30px;
   border-radius: 10px;
   text-align: center;

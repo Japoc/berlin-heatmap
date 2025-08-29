@@ -51,12 +51,12 @@ The project currently only includes the about 700 train stations of Berlin, so n
   + vite
   + vue
   + typescript
-  + leaflet for the map and overlaying it with a generated heatmap (png)
+  + [leaflet](https://leafletjs.com/) for rendering the map and overlaying it with a generated heatmap (png)
 + backend: golang
 + data: 
   + osm data for berlin: [osm](https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf)
   + gtfs data for berlin [vbb](https://vbb.de/vbbgtfs)
-  + tool to compute distances between stops: [Open Trip Planner](https://docs.opentripplanner.org/en/latest/)
+  + tool to precompute a matrix of distances between stops: [Open Trip Planner](https://docs.opentripplanner.org/en/latest/)
 
   
 ## Getting Started

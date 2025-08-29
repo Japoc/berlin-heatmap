@@ -2,6 +2,7 @@
 import {onMounted, onUnmounted, ref, watch} from 'vue'
 import {LMap, LTileLayer, LImageOverlay, LControlScale, LMarker} from '@vue-leaflet/vue-leaflet'
 import Slider from "./Slider.vue";
+import SpinnerOverlay from "./SpinnerOverlay.vue";
 // store last mouse position on map (for "m" key)
 const lastMouseLat = ref<number | null>(null)
 const lastMouseLon = ref<number | null>(null)
@@ -11,6 +12,9 @@ const heatmapUrl = ref<string | null>(null)
 const latitude = ref<string | null>(null)
 const longitude = ref<string | null>(null)
 const routeData = ref<any | null>(null)
+
+const isLoading = ref(false)
+const showSpinner = ref(false)
 
 const minHeatValue = 0
 const maxHeatValue = ref(120)
@@ -40,11 +44,38 @@ async function onKeyDown(e: KeyboardEvent) {
   }
 }
 
+let spinnerTimer: number | null = null
+
 function updateHeatmapUrl() {
   console.log(apiURL)
   if (latitude.value && longitude.value) {
-    heatmapUrl.value = `${apiURL}/heatmap?lat=${latitude.value}&lon=${longitude.value}&format=png&max=${maxHeatValue.value}`
+    const url = `${apiURL}/heatmap?lat=${latitude.value}&lon=${longitude.value}&format=png&max=${maxHeatValue.value}`
+    heatmapUrl.value = url
+    isLoading.value = true
+
+    // Show spinner only if request > 1s
+    if (spinnerTimer) clearTimeout(spinnerTimer)
+    spinnerTimer = window.setTimeout(() => {
+      if (isLoading.value) showSpinner.value = true
+    }, 1000)
+
+    const img = new Image()
+    img.src = url
+    img.onload = () => {
+      heatmapUrl.value = url
+      isLoading.value = false
+      showSpinner.value = false
+      if (spinnerTimer) clearTimeout(spinnerTimer)
+    }
+    img.onerror = () => {
+      isLoading.value = false
+      showSpinner.value = false
+      if (spinnerTimer) clearTimeout(spinnerTimer)
+    }
+
   }
+
+
 }
 
 // 🔹 Watch slider value, refresh heatmap when it changes
@@ -99,6 +130,7 @@ onUnmounted(() => {
         :imperial = "false">
     </LControlScale>
   </LMap>
+  <SpinnerOverlay v-if="showSpinner" text="Waking up backend... please wait" />
   <div class="heatmap-legend-below">
     <div class="color-bar"></div>
     <div class="labels">
@@ -135,5 +167,32 @@ onUnmounted(() => {
   font-size: 11px;
   margin-top: 2px;
 }
+.spinner-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7); /* dark backdrop for contrast */
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 9999;
+  color: #fff; /* make text visible */
+  font-weight: 500;
+  font-size: 14px;
+}
 
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid rgba(255,255,255,0.3); /* faint border */
+  border-top: 4px solid #ffffff; /* bright white */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 </style>

@@ -14,10 +14,42 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	fetchedSBahn := routes.FetchRoutes(ctx, cfg, []string{"S"})
-	fetchedMetro := routes.FetchRoutes(ctx, cfg, []string{"U"})
-	routes.WriteRoutes(fetchedSBahn, cfg.OutDir, "sbahn_routes.json")
-	routes.WriteRoutes(fetchedMetro, cfg.OutDir, "metro_routes.json")
+	routeConfig := []struct {
+		nameFilter  []string
+		mode        string
+		outFileName string
+	}{
+		{
+			nameFilter:  []string{"S"},
+			mode:        "RAIL",
+			outFileName: "sbahn_routes",
+		},
+		{
+			nameFilter:  []string{"U"},
+			mode:        "RAIL",
+			outFileName: "metro_routes",
+		},
+		{
+			nameFilter:  []string{"S"},
+			mode:        "RAIL",
+			outFileName: "sbahn_routes",
+		},
+		{
+			nameFilter:  []string{""},
+			mode:        "BUS",
+			outFileName: "bus_routes",
+		},
+		{
+			nameFilter:  []string{""},
+			mode:        "TRAM",
+			outFileName: "tram_routes",
+		},
+	}
+
+	for _, conf := range routeConfig {
+		fetched := routes.FetchRoutes(ctx, cfg, conf.nameFilter, conf.mode)
+		routes.WriteRoutes(fetched, cfg.OutDir, conf.outFileName+".json")
+	}
 
 	log.Printf("done. routes in %s", cfg.OutDir)
 }

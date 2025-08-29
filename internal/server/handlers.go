@@ -57,6 +57,8 @@ func isValidRouteType(routeType string) bool {
 	isValidRouteType := map[string]bool{
 		"metro": true,
 		"sbahn": true,
+		"bus":   true,
+		"tram":  true,
 	}
 	return isValidRouteType[routeType]
 }

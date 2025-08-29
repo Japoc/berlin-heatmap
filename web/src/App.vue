@@ -9,6 +9,8 @@ const maxHeatValue = ref(120)
 
 const showMetro = ref(false)
 const showSBahn = ref(false)
+const showTram = ref(false)
+const showBus = ref(false)
 </script>
 
 <template>
@@ -19,6 +21,8 @@ const showSBahn = ref(false)
         :min-heat-value="minHeatValue"
         :show-metro="showMetro"
         :show-s-bahn="showSBahn"
+        :show-tram="showTram"
+        :show-bus="showBus"
     >
     </HeatmapMap>
     <div class="bottom-panel">
@@ -41,6 +45,8 @@ const showSBahn = ref(false)
         <div class="right-block">
           <Checkbox v-model="showMetro" label="Show Metro Routes" />
           <Checkbox v-model="showSBahn" label="Show S-Bahn Routes" />
+          <Checkbox v-model="showTram" label="Show Tram Routes" />
+          <Checkbox v-model="showBus" label="Show Routes Routes" />
         </div>
 
       </div>

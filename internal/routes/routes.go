@@ -12,9 +12,9 @@ import (
 
 type Route = gql.Route
 
-func FetchRoutes(ctx context.Context, cfg config.Config, routeNames []string) []Route {
+func FetchRoutes(ctx context.Context, cfg config.Config, routeNames []string, mode string) []Route {
 	client := gql.New(cfg.APIURL)
-	routes, err := client.Routes(ctx, routeNames)
+	routes, err := client.Routes(ctx, routeNames, mode)
 	if err != nil {
 		log.Fatalf("fetch routes: %v", err)
 	}

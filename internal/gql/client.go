@@ -71,7 +71,7 @@ type Route struct {
 	Points    string
 }
 
-func (c *Client) Routes(ctx context.Context, routeNames []string) ([]Route, error) {
+func (c *Client) Routes(ctx context.Context, routeNames []string, mode string) ([]Route, error) {
 	routes := make([]Route, 0)
 	for _, routeName := range routeNames {
 		query := fmt.Sprintf(`{
@@ -115,7 +115,7 @@ func (c *Client) Routes(ctx context.Context, routeNames []string) ([]Route, erro
 			return nil, err
 		}
 		for _, r := range resp.Data.Routes {
-			if r.Mode == "RAIL" {
+			if r.Mode == mode {
 				mostStops := 0
 				points := ""
 				for _, pattern := range r.Patterns {

@@ -11,6 +11,8 @@ const lastMouseLon = ref<number | null>(null)
 
 const metroRoutes = ref<any[]>([])
 const sBahnRoutes = ref<any[]>([])
+const tramRoutes = ref<any[]>([])
+const busRoutes = ref<any[]>([])
 
 // store heatmap url
 const heatmapUrl = ref<string | null>(null)
@@ -28,11 +30,13 @@ const bbox: [[number, number], [number, number]] = [[52.33, 13.08], [52.67, 13.7
 const props = defineProps<{
   showSBahn: boolean,
   showMetro: boolean,
+  showTram: boolean,
+  showBus: boolean,
   maxHeatValue: number,
   minHeatValue: number,
 }>()
 
-const { showSBahn, showMetro, maxHeatValue } = toRefs(props)
+const { showSBahn, showMetro, showTram, showBus, maxHeatValue } = toRefs(props)
 
 async function onMapClick(event: any) {
   longitude.value = event.latlng.lng
@@ -119,6 +123,8 @@ onMounted(async () => {
   window.addEventListener("keydown", onKeyDown)
   metroRoutes.value = await fetchRoutes("metro")
   sBahnRoutes.value = await fetchRoutes("sbahn")
+  tramRoutes.value = await fetchRoutes("tram")
+  busRoutes.value = await fetchRoutes("bus")
 })
 onUnmounted(() => {
   window.removeEventListener("keydown", onKeyDown)
@@ -154,6 +160,22 @@ onUnmounted(() => {
             :mode="item.Mode"
             :short-name="item.ShortName"
             :color="item.Color"
+            :points="decode(item.Points)" >
+        </Polyline>
+        <Polyline
+            v-if="showTram"
+            v-for="(item) in tramRoutes"
+            :mode="item.Mode"
+            :short-name="item.ShortName"
+            :color="'D70040'"
+            :points="decode(item.Points)" >
+        </Polyline>
+        <Polyline
+            v-if="showBus"
+            v-for="(item) in busRoutes"
+            :mode="item.Mode"
+            :short-name="item.ShortName"
+            :color="'9F2B68'"
             :points="decode(item.Points)" >
         </Polyline>
         <LImageOverlay

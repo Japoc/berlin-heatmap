@@ -62,6 +62,14 @@ func isValidRouteType(routeType string) bool {
 }
 
 func (s *HeatmapStore) routesHandler(w http.ResponseWriter, r *http.Request) {
+	entries, err := os.ReadDir("./")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, e := range entries {
+		fmt.Println(e.Name())
+	}
 	routeType := r.URL.Query().Get("type")
 	if !isValidRouteType(routeType) {
 		http.Error(w, "received invalid route type", http.StatusBadRequest)
@@ -69,6 +77,7 @@ func (s *HeatmapStore) routesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	filePath := fmt.Sprintf("../data/routes/%v_routes.json", routeType)
+	log.Println(filePath)
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		http.Error(w, "Failed to read routes JSON", http.StatusInternalServerError)

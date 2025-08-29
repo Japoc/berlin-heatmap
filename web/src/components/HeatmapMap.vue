@@ -156,7 +156,7 @@ onUnmounted(() => {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  background: linear-gradient(to right, blue, cyan, lime, yellow, red);
+  background: linear-gradient(to right, blue, cyan, yellow, red);
   border: 1px solid #aaa;
   border-radius: 2px;
 }

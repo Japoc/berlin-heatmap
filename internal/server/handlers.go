@@ -3,6 +3,7 @@ package server
 import (
 	"berlin-heatmap/internal/gql"
 	"encoding/json"
+	"fmt"
 	"image/png"
 	"log"
 	"math"
@@ -52,9 +53,22 @@ func (s *HeatmapStore) heatmapScaleHandler(w http.ResponseWriter, r *http.Reques
 	png.Encode(w, img)
 }
 
+func isValidRouteType(routeType string) bool {
+	isValidRouteType := map[string]bool{
+		"metro": true,
+		"sbahn": true,
+	}
+	return isValidRouteType[routeType]
+}
+
 func (s *HeatmapStore) routesHandler(w http.ResponseWriter, r *http.Request) {
+	routeType := r.URL.Query().Get("type")
+	if !isValidRouteType(routeType) {
+		http.Error(w, "received invalid route type", http.StatusBadRequest)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	filePath := "./data/routes/metro_routes.json"
+	filePath := fmt.Sprintf("../data/routes/%v_routes.json", routeType)
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		http.Error(w, "Failed to read routes JSON", http.StatusInternalServerError)

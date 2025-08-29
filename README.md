@@ -43,7 +43,7 @@ This project is a tool to visualize travel times around berlin using public tran
 
 The project currently only includes one dataset, based on the transit data on 22.08.2025 at 12:00.
 
-The project currently only includes the about 700 train stations of Berlin, so no tram or bus are being considered.
+The project currently only includes the about 800 train stations of Berlin, so no trams or busses are being considered.
 
 ### Built With
 
@@ -52,7 +52,8 @@ The project currently only includes the about 700 train stations of Berlin, so n
   + vue
   + typescript
   + [leaflet](https://leafletjs.com/) for rendering the map and overlaying it with a generated heatmap (png)
-+ backend: golang
++ backend: 
+  + golang
 + data: 
   + osm data for berlin: [osm](https://download.geofabrik.de/europe/germany/berlin-latest.osm.pbf)
   + gtfs data for berlin [vbb](https://vbb.de/vbbgtfs)

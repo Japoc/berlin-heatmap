@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref, watch} from 'vue'
+import {defineProps, onMounted, onUnmounted, ref, toRefs, watch} from 'vue'
 import {LMap, LTileLayer, LImageOverlay, LControlScale, LMarker} from '@vue-leaflet/vue-leaflet'
-import Slider from "./Slider.vue";
 import SpinnerOverlay from "./SpinnerOverlay.vue";
+import { decode } from '@googlemaps/polyline-codec';
+import metroRoutes from './metro_routes.json'
+import sBahnRoutes from './sBahn_routes.json'
+import Polyline from "./Polyline.vue";
+
 // store last mouse position on map (for "m" key)
 const lastMouseLat = ref<number | null>(null)
 const lastMouseLon = ref<number | null>(null)
@@ -16,12 +20,18 @@ const routeData = ref<any | null>(null)
 const isLoading = ref(false)
 const showSpinner = ref(false)
 
-const minHeatValue = 0
-const maxHeatValue = ref(120)
 const apiURL = import.meta.env.VITE_API_URL
 
 const bbox: [[number, number], [number, number]] = [[52.33, 13.08], [52.67, 13.76]]
 
+const props = defineProps<{
+  showSBahn: boolean,
+  showMetro: boolean,
+  maxHeatValue: number,
+  minHeatValue: number,
+}>()
+
+const { showSBahn, showMetro, maxHeatValue } = toRefs(props)
 
 async function onMapClick(event: any) {
   longitude.value = event.latlng.lng
@@ -47,7 +57,6 @@ async function onKeyDown(e: KeyboardEvent) {
 let spinnerTimer: number | null = null
 
 function updateHeatmapUrl() {
-  console.log(apiURL)
   if (latitude.value && longitude.value) {
     const url = `${apiURL}/heatmap?lat=${latitude.value}&lon=${longitude.value}&format=png&max=${maxHeatValue.value}`
     heatmapUrl.value = url
@@ -102,10 +111,10 @@ onUnmounted(() => {
   window.removeEventListener("keydown", onKeyDown)
   //<iframe src="https://japoc.github.io/berlin-heatmap" width="500px" height="500px"></iframe>
 })
+
 </script>
 
 <template>
-  <div class="page-container">
     <div class="map-container">
       <LMap
           :zoom="11"
@@ -118,6 +127,22 @@ onUnmounted(() => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
         />
+        <Polyline
+            v-if="showMetro"
+            v-for="(item) in metroRoutes"
+            :mode="item.Mode"
+            :short-name="item.ShortName"
+            :color="item.Color"
+            :points="decode(item.Points)" >
+        </Polyline>
+        <Polyline
+            v-if="showSBahn"
+            v-for="(item) in sBahnRoutes"
+            :mode="item.Mode"
+            :short-name="item.ShortName"
+            :color="item.Color"
+            :points="decode(item.Points)" >
+        </Polyline>
         <LImageOverlay
             v-if="heatmapUrl"
             :url="heatmapUrl"
@@ -128,30 +153,10 @@ onUnmounted(() => {
       </LMap>
       <SpinnerOverlay v-if="showSpinner" text="Waking up backend... please wait" />
     </div>
-
-    <div class="bottom-panel">
-      <div class="heatmap-legend-below">
-        <div class="color-bar"></div>
-        <div class="labels">
-          <span>{{ minHeatValue }}</span>
-          <span>{{ Math.round((minHeatValue + maxHeatValue)/2) }}</span>
-          <span>{{ maxHeatValue }}</span>
-        </div>
-      </div>
-      <Slider v-model="maxHeatValue" :min="10" :max="180" :step="10" :label="'maximum heat'"/>
-    </div>
-  </div>
 </template>
 
 
 <style scoped>
-.page-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-}
 
 .map-container {
   flex: 1;
@@ -163,37 +168,13 @@ onUnmounted(() => {
   width: 100%;
 }
 
-.bottom-panel {
-  padding: 10px;
-  background: #5e5e5e;
-}
-
-.heatmap-legend-below {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto 10px auto;
-  text-align: center;
-  font-size: 12px;
-}
-
-.heatmap-legend-below .color-bar {
-  height: 15px;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  background: linear-gradient(to right, blue, cyan, yellow, red);
-  border: 1px solid #aaa;
-  border-radius: 2px;
-}
-
-.heatmap-legend-below .labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  margin-top: 2px;
-}
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+:global(.leaflet-interactive) {
+  outline: none !important;
+  stroke-opacity: 1;    /* ensure opacity stays correct */
 }
 </style>

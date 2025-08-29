@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -14,6 +15,7 @@ func StartHTTPServer(cfg *Config, store *HeatmapStore) {
 	http.HandleFunc("/heatmap", store.HeatmapHandler)
 	http.HandleFunc("/scale", store.heatmapScaleHandler)
 	http.Handle("/route", withCORS(http.HandlerFunc(store.routeHandler)))
+	http.HandleFunc("/routes", store.routesHandler)
 	log.Printf("listening on :%s", cfg.Port)
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
 }
@@ -48,6 +50,21 @@ func (s *HeatmapStore) heatmapScaleHandler(w http.ResponseWriter, r *http.Reques
 	img := heatmapScale()
 	w.Header().Set("Content-Type", "image/png")
 	png.Encode(w, img)
+}
+
+func (s *HeatmapStore) routesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	filePath := "./data/routes/metro_routes.json"
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		http.Error(w, "Failed to read routes JSON", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func parseFloat(s string) float64 {

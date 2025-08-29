@@ -51,10 +51,8 @@ function onInput(e: Event) {
 
 <style scoped>
 .slider-container {
-  margin: 10px auto;
   text-align: center;
-  width: 80%;
-  max-width: 600px;
+  width: 100%;
 }
 input[type="range"] {
   width: 100%;

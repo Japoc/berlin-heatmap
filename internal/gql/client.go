@@ -1,4 +1,3 @@
-// internal/gql/client.go
 package gql
 
 import (
@@ -32,7 +31,6 @@ type Stop struct {
 }
 
 func (c *Client) Stops(ctx context.Context, box BBox) ([]Stop, error) {
-	// Example stop fetch query (depends on GTFS API schema!)
 	query := `{
 		stops {
 			id
@@ -57,13 +55,87 @@ func (c *Client) Stops(ctx context.Context, box BBox) ([]Stop, error) {
 	stops := make([]Stop, len(resp.Data.Stops))
 	count := 0
 	for _, s := range resp.Data.Stops {
-		if isInBerlin(Stop(s), box) && s.VehicleMode == "RAIL" {
+		if isInBox(Stop(s), box) && s.VehicleMode == "RAIL" {
 			stops[count] = Stop{s.ID, s.Lat, s.Lon, s.VehicleMode}
 			count++
 		}
 	}
 	log.Printf(`found %v stops`, count)
 	return stops[:count], nil
+}
+
+type Route struct {
+	Mode      string
+	ShortName string
+	Color     string
+	Points    string
+}
+
+func (c *Client) Routes(ctx context.Context, routeNames []string) ([]Route, error) {
+	routes := make([]Route, 0)
+	for _, routeName := range routeNames {
+		query := fmt.Sprintf(`{
+		  routes(name: "%v") {
+			mode
+			shortName
+			type
+			textColor
+			color
+			patterns {
+			  stops {
+				name
+			  }
+			  patternGeometry {
+				points
+			  }
+			}
+		  }
+		}`, routeName)
+		var resp struct {
+			Data struct {
+				Routes []struct {
+					Mode      string `json:"mode"`
+					ShortName string `json:"shortName"`
+					Type      int    `json:"type"`
+					TextColor string `json:"textColor"`
+					Color     string `json:"color"`
+					Patterns  []struct {
+						Stops []struct {
+							Name string `json:"name"`
+						}
+						PatternGeometry struct {
+							Points string `json:"points"`
+						}
+					} `json:"patterns"`
+				} `json:"routes"`
+			} `json:"data"`
+		}
+
+		if err := c.do(ctx, query, nil, &resp); err != nil {
+			return nil, err
+		}
+		for _, r := range resp.Data.Routes {
+			if r.Mode == "RAIL" {
+				mostStops := 0
+				points := ""
+				for _, pattern := range r.Patterns {
+					if len(pattern.Stops) > mostStops {
+						mostStops = len(pattern.Stops)
+						points = pattern.PatternGeometry.Points
+					}
+				}
+				routes = append(routes, Route{
+					Mode:      r.Mode,
+					ShortName: r.ShortName,
+					Color:     r.Color,
+					Points:    points,
+				})
+			}
+		}
+		log.Printf(`found %v routes`, len(routes))
+	}
+
+	return routes, nil
 }
 
 func (c *Client) TravelTime(ctx context.Context, from, to Stop, when time.Time) (int, error) {
@@ -141,7 +213,7 @@ func (c *Client) do(ctx context.Context, query string, vars map[string]interface
 	return json.Unmarshal(b, out)
 }
 
-func isInBerlin(from Stop, box BBox) bool {
+func isInBox(from Stop, box BBox) bool {
 	lat1, lat2, long1, long2 := box.MinLat, box.MaxLat, box.MinLon, box.MaxLon
 	if lat1 < lat2 {
 		lat1, lat2 = lat2, lat1

@@ -25,7 +25,7 @@ type Config struct {
 }
 
 var (
-	apiURL   = flag.String("graphql", "", "GTFS-GraphQL endpoint")
+	apiURL   = flag.String("graphql", "http://localhost:8080/otp/gtfs/v1", "GTFS-GraphQL endpoint")
 	bucket   = flag.String("bucket", "weekday_08", "time bucket label")
 	bboxStr  = flag.String("bbox", "13.0884,52.3383,13.7612,52.6755", "minLon,minLat,maxLon,maxLat")
 	grid     = flag.Int("grid", 400, "grid spacing in meters")
